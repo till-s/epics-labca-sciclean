@@ -1,6 +1,13 @@
 #include <sciclean.h>
 #include <string.h>
 
+#if SCI_VERSION_MAJOR >= 5
+/* scilab-5.1 fails to declare this :-(
+ * hope it is not deprecated...
+ */
+void FreeRhsSVar(char **);
+#endif
+
 struct sciclean {
 	void *obj;
 	void (*obj_clean)(void*);

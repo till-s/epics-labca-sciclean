@@ -16,7 +16,12 @@
  * The idea here is to provide generic hooks so
  * that this problem is solved.
  */
+#include <version.h>
  
+/* scilab 4 has no PARAMS.h but doesn't define SCI_VERSION_MAJOR either... */
+#if SCI_VERSION_MAJOR >= 5
+#include <PARAMS.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
