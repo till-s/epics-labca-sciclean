@@ -20,7 +20,13 @@
  
 /* scilab 4 has no PARAMS.h but doesn't define SCI_VERSION_MAJOR either... */
 #if SCI_VERSION_MAJOR >= 5
+#if SCI_VERSION_MINOR < 2
 #include <PARAMS.h>
+#else
+#ifndef __PARAMS
+#define __PARAMS(xxx) xxx
+#endif
+#endif
 #endif
 
 #ifdef __cplusplus
