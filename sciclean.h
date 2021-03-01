@@ -20,7 +20,7 @@
  
 /* scilab 4 has no PARAMS.h but doesn't define SCI_VERSION_MAJOR either... */
 #if SCI_VERSION_MAJOR >= 5
-#if SCI_VERSION_MINOR < 2
+#if (SCI_VERSION_MAJOR == 5) && (SCI_VERSION_MINOR < 2)
 #include <PARAMS.h>
 #else
 #ifndef __PARAMS
@@ -32,6 +32,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef void * PvApiCtxType;
 
 /* Our own scilab 'gateway' function; this MUST be used
  * in the jumptable. This gateway (not thread-safe ATM)
@@ -69,7 +71,7 @@ sciclean_cancel(Sciclean sciclean, Scicleanup scicleanup);
 
 /* Scilab gate function prototype; uarg is passed through by gateway */
 
-typedef int (*ScicleanGatefunc) __PARAMS((char *fname, int l, Sciclean sciclean));
+typedef int (*ScicleanGatefunc) __PARAMS((char *fname, PvApiCtxType pvApiCtx, Sciclean sciclean));
 
 /* Scilab interface function */
 

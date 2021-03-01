@@ -1,5 +1,6 @@
 #include <sciclean.h>
 #include <string.h>
+#include <stdlib.h>
 
 #if SCI_VERSION_MAJOR >= 5
 /* scilab-5.1 fails to declare this :-(
