@@ -1,8 +1,6 @@
 #ifndef SCICLEAN_H
 #define SCICLEAN_H
 
-#include <mex.h>
-
 /* Framework for cleaning up objects that
  * are allocated from scilab interface functions.
  * This is necessary because a lot of macros
@@ -18,22 +16,9 @@
  */
 #include <version.h>
  
-/* scilab 4 has no PARAMS.h but doesn't define SCI_VERSION_MAJOR either... */
-#if SCI_VERSION_MAJOR >= 5
-#if (SCI_VERSION_MAJOR == 5) && (SCI_VERSION_MINOR < 2)
-#include <PARAMS.h>
-#else
-#ifndef __PARAMS
-#define __PARAMS(xxx) xxx
-#endif
-#endif
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef void * PvApiCtxType;
 
 /* Our own scilab 'gateway' function; this MUST be used
  * in the jumptable. This gateway (not thread-safe ATM)
@@ -54,16 +39,11 @@ typedef int Scicleanup;
 Scicleanup
 sciclean_push(Sciclean sciclean, void *obj, void (*obj_clean)(void *obj));
 
-/* A utility cleanup for string matrices
- * obtained with GetRhsVar(.."S"..) and the like
- */
-void sciclean_freeRhsSVar(void *obj);
-
 /* Utility macro to save typing; assumes the Scicleanup argument
  * to your user interface function is named 'scicleanup'.
  */
-#define SCICLEAN(x)      ( (x) ? sciclean_push((sciclean), (x), 0) : (-1) )
-#define SCICLEAN_SVAR(x) ( (x) ? sciclean_push((sciclean), (x), sciclean_freeRhsSVar) : (-1) )
+#define SCICLEAN_CLNF(x,f) ( (x) ? sciclean_push((sciclean), (x), (f)) : (-1) )
+#define SCICLEAN(x)        SCICLEAN_CLNF( x, 0 )
 
 /* Cancel a cleanup */
 void
@@ -71,11 +51,10 @@ sciclean_cancel(Sciclean sciclean, Scicleanup scicleanup);
 
 /* Scilab gate function prototype; uarg is passed through by gateway */
 
-typedef int (*ScicleanGatefunc) __PARAMS((char *fname, PvApiCtxType pvApiCtx, Sciclean sciclean));
+typedef int (*ScicleanGatefunc)(char *fname, void *uarg, Sciclean sciclean);
 
-/* Scilab interface function */
-
-int sciclean_gateway __PARAMS((char*, ScicleanGatefunc F));
+int
+sciclean_trampoline(char *fname, void *uarg, ScicleanGatefunc f);
 
 #ifdef __cplusplus
 }

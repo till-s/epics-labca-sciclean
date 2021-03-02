@@ -2,13 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if SCI_VERSION_MAJOR >= 5
-/* scilab-5.1 fails to declare this :-(
- * hope it is not deprecated...
- */
-void FreeRhsSVar(char **);
-#endif
-
 struct sciclean {
 	void *obj;
 	void (*obj_clean)(void*);
@@ -65,8 +58,8 @@ struct sciclean_list *c = context;
 }
 
 /* Scilab interface function */
-
-int sciclean_gateway(char *fname, ScicleanGatefunc F)
+int
+sciclean_trampoline(char *fname, void *uarg, ScicleanGatefunc f)
 {
 int    i;
 struct sciclean_list context;
@@ -78,7 +71,7 @@ struct sciclean *p;
 	context.len = -1;
 
 	/* call user interface function */
-	(*F)(fname, strlen(fname), &context);
+	(*f)(fname, uarg, &context);
 
 	/* cleanup */
 	for ( i=0, p=context.l; i<=context.len; i++,p++ ) {
@@ -88,18 +81,5 @@ struct sciclean *p;
 	/* clean list itself */
 	free(context.l);
 
-	/* push lhs vars (same as sci_gateway()) */
-	if ( !C2F(putlhsvar)() ) return 0;
-
 	return 0;
-}
-
-void sciclean_freeRhsSVar(void *obj)
-{
-	if ( obj ) {
-#ifdef DEBUG
-		printf("Cleaning SVAR (1st el: '%s')\n", *(char**)obj);
-#endif
-		FreeRhsSVar( ((char **)obj) );
-	}
 }
